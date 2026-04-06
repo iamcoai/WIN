@@ -1,0 +1,30 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Editors / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Env files (root level)
+.env
+.env.*
+!.env.example
+
+# Node (root level — workspace tooling, not the web/ app which has its own)
+/node_modules
+
+# Local Claude state we don't want to track
+.claude/state/
+.claude/cache/
+
+# Stitch generated artifacts (if used at root)
+.stitch/
