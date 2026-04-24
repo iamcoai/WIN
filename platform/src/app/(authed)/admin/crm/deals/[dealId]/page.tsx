@@ -17,6 +17,7 @@ import {
   user,
 } from "@/lib/db/schema";
 import { ActivityForm } from "../../contacts/[contactId]/activity-form";
+import { FollowUpButton } from "@/components/crm/follow-up-button";
 
 export default async function DealDetail({
   params,
@@ -80,7 +81,7 @@ export default async function DealDetail({
             : undefined
         }
         actions={
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <Badge variant="outline">{stage?.name ?? "—"}</Badge>
             <Badge
               variant={
@@ -93,6 +94,7 @@ export default async function DealDetail({
             >
               {d.status}
             </Badge>
+            <FollowUpButton dealId={dealId} defaultTitle={`Follow-up: ${d.title}`} />
           </div>
         }
       />

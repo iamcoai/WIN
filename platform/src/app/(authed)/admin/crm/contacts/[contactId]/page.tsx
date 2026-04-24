@@ -18,6 +18,7 @@ import {
   workshop,
 } from "@/lib/db/schema";
 import { ActivityForm } from "./activity-form";
+import { FollowUpButton } from "@/components/crm/follow-up-button";
 import { Phone, Mail, Building2, MessageSquare, Calendar, Briefcase } from "lucide-react";
 
 const TYPE_ICON: Record<string, typeof Phone> = {
@@ -107,6 +108,7 @@ export default async function ContactDetail({
       <PageHeader
         title={fullName}
         description={[c.jobTitle, c.company].filter(Boolean).join(" · ") || c.email || undefined}
+        actions={<FollowUpButton contactId={contactId} defaultTitle={`Check-in met ${fullName}`} />}
       />
       <PageBody className="max-w-6xl">
         <div className="grid gap-5 lg:grid-cols-3">
