@@ -321,6 +321,16 @@ export const task = pgTable(
     column: text("column", { enum: ["todo", "doing", "review", "done"] })
       .default("todo")
       .notNull(),
+    bucket: text("bucket", {
+      enum: ["today", "next", "waiting", "someday", "inbox", "done"],
+    })
+      .default("inbox")
+      .notNull(),
+    isFocus: boolean("is_focus").default(false).notNull(),
+    waitingOn: text("waiting_on"),
+    snoozeUntil: timestamp("snooze_until"),
+    reminderAt: timestamp("reminder_at"),
+    ownerId: text("owner_id").references(() => user.id, { onDelete: "set null" }),
     position: integer("position").default(0).notNull(),
     assigneeId: text("assignee_id").references(() => user.id, { onDelete: "set null" }),
     dueAt: timestamp("due_at"),
@@ -335,6 +345,9 @@ export const task = pgTable(
     index("task_contact_idx").on(t.contactId),
     index("task_deal_idx").on(t.dealId),
     index("task_workshop_idx").on(t.workshopId),
+    index("task_bucket_idx").on(t.bucket),
+    index("task_reminder_idx").on(t.reminderAt),
+    index("task_owner_bucket_idx").on(t.ownerId, t.bucket),
   ],
 );
 
