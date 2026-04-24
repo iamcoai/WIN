@@ -31,5 +31,8 @@
   "homepage": "https://github.com/iamcoai/WIN#readme",
   "dependencies": {
     "@google/stitch-sdk": "^0.1.0"
+  },
+  "devDependencies": {
+    "shadcn": "^4.4.0"
   }
 }

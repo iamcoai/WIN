@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
-import { Inter, Manrope } from "next/font/google";
+import { Inter, Manrope, Geist } from "next/font/google";
 import "./globals.css";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const inter = Inter({
   subsets: ["latin"],
@@ -28,7 +31,7 @@ export default function RootLayout({
   return (
     <html
       lang="nl"
-      className={`${inter.variable} ${manrope.variable} scroll-smooth`}
+      className={cn("scroll-smooth", inter.variable, manrope.variable, "font-sans", geist.variable)}
     >
       <body className="min-h-screen antialiased">{children}</body>
     </html>

@@ -24,11 +24,12 @@ Read, Edit, Write, Bash, Glob, Grep, WebFetch, WebSearch, TaskCreate, Skill, Ask
 - **Word document server** — voor `content/webteksten/*.docx` (blok 2 content-analyse)
 - **GitHub** — PRs, issues, code search. Actieve gh-account voor MCP = `cocreatie` (token-scopes: gist, read:org, repo, workflow). Git push naar `iamcoai/WIN` vereist `gh auth switch -u iamcoai` vooraf — push gaat **niet** via MCP.
 - **Supabase MCP** (hosted: `mcp.supabase.com/mcp`, project-scoped) — database werkt via de `win-supabase-mcp` skill. Bij sessie-start: `claude mcp list | grep supabase` om te verifiëren. Volledige reference: memory `reference_supabase_mcp`. **Nooit tegen prod.**
+- **Shadcn MCP** (stdio: `npx shadcn@latest mcp`) — component-registry; gebruikt via de `win-shadcn` skill voor UI-werk op `/platform`. 47 componenten geïnstalleerd, shadcn tokens gebonden aan WIN-brandkleuren in `platform/src/app/globals.css`.
 - **PostHog** — analytics (nog niet aangesloten, optie voor blok 4)
 - **Notion / Gmail / Google Calendar / Google Drive** — Chris's productivity suite, beschikbaar voor toekomstige integraties
 
 ### Skills geïnstalleerd
-- **WIN-custom (4):** `/win-brand-rules`, `/win-new-section`, `/win-copy-edit`, `/win-deploy-check`
+- **WIN-custom (6):** `/win-brand-rules`, `/win-new-section`, `/win-copy-edit`, `/win-deploy-check`, `/win-supabase-mcp`, `/win-shadcn`
 - **G-Stack (40):** complete set incl. `/office-hours`, `/autoplan`, `/plan-*`, `/review`, `/investigate`, `/qa`, `/browse`, `/ship`, `/land-and-deploy`, `/canary`, `/cso`, `/careful`, `/freeze`, `/retro`, `/learn`, `/mem` (zelf-gebouwd, zie stap 4)
 - **Meta (losse plugins):** `skill-creator`, `claude-md-management`, `graphify`, `superpowers:*`, `frontend-design`
 
@@ -117,6 +118,7 @@ Vóór elke actie scan ik triggers. Match → laad skill via `Skill` tool vóór
 - *kleuren / fonts / merk / tone of voice* → `/win-brand-rules`
 - *deploy-check / ready to ship / pre-deploy* → `/win-deploy-check`
 - *supabase / database / schema / migratie / drizzle push / rls / policy / db-logs / types genereren / tabel toevoegen* → `/win-supabase-mcp`
+- *shadcn / button / input / dialog / drawer / sheet / form / modal / dropdown / table / tabs / sidebar / toast / componenten installeren / component-style* → `/win-shadcn`
 
 ### Meta-triggers
 - *mem / memory / leg vast / update jezelf* → `/mem`

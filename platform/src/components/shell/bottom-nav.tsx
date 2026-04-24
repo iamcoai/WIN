@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Role } from "@/config/nav";
 import { navConfig } from "@/config/nav";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/utils";
 
 export function BottomNav({ role }: { role: Role }) {
   const pathname = usePathname();

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import type { Role } from "@/config/nav";
 import { navConfig, roleHome } from "@/config/nav";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/utils";
 
 export function Topbar({ role, userName }: { role: Role; userName: string }) {
   const [open, setOpen] = useState(false);
