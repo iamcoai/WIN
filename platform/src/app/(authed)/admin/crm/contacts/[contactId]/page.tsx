@@ -11,6 +11,7 @@ import {
   contactTag,
   customField,
   deal,
+  document,
   tag,
   task,
   user,
@@ -19,6 +20,7 @@ import {
 } from "@/lib/db/schema";
 import { ActivityForm } from "./activity-form";
 import { FollowUpButton } from "@/components/crm/follow-up-button";
+import { DocumentsPanel } from "@/components/crm/documents-panel";
 import { Phone, Mail, Building2, MessageSquare, Calendar, Briefcase } from "lucide-react";
 
 const TYPE_ICON: Record<string, typeof Phone> = {
@@ -100,6 +102,19 @@ export default async function ContactDetail({
     .orderBy(asc(customField.position));
 
   const cfValues = (c.customFields as Record<string, unknown>) ?? {};
+
+  const documents = await db
+    .select({
+      id: document.id,
+      name: document.name,
+      description: document.description,
+      mimeType: document.mimeType,
+      sizeBytes: document.sizeBytes,
+      createdAt: document.createdAt,
+    })
+    .from(document)
+    .where(eq(document.contactId, contactId))
+    .orderBy(desc(document.createdAt));
 
   const fullName = [c.firstName, c.lastName].filter(Boolean).join(" ") || "—";
 
@@ -247,6 +262,14 @@ export default async function ContactDetail({
                 </CardContent>
               </Card>
             ) : null}
+
+            <DocumentsPanel
+              docs={documents.map((d) => ({
+                ...d,
+                createdAt: d.createdAt.toISOString(),
+              }))}
+              entity={{ contactId }}
+            />
           </div>
 
           {/* Right: profile + tags + custom fields */}
