@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, inArray } from "drizzle-orm";
 import { PageBody, PageHeader } from "@/components/ui/page-header";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -21,14 +21,27 @@ export default async function CoachTrajectDetail({
     .where(eq(trajectModule.trajectId, trajectId))
     .orderBy(asc(trajectModule.position));
 
+  // Fetch all opdrachten for all modules in one query (no N+1)
+  const moduleIds = modules.map((m) => m.id);
+  const allOpdrachten = moduleIds.length
+    ? await db
+        .select({
+          id: opdracht.id,
+          moduleId: opdracht.moduleId,
+          title: opdracht.title,
+          type: opdracht.type,
+          position: opdracht.position,
+        })
+        .from(opdracht)
+        .where(inArray(opdracht.moduleId, moduleIds))
+        .orderBy(asc(opdracht.position))
+    : [];
+
   const opsByModule = new Map<string, Array<{ id: string; title: string; type: string }>>();
-  for (const m of modules) {
-    const ops = await db
-      .select({ id: opdracht.id, title: opdracht.title, type: opdracht.type })
-      .from(opdracht)
-      .where(eq(opdracht.moduleId, m.id))
-      .orderBy(asc(opdracht.position));
-    opsByModule.set(m.id, ops);
+  for (const m of modules) opsByModule.set(m.id, []);
+  for (const o of allOpdrachten) {
+    if (!o.moduleId) continue;
+    opsByModule.get(o.moduleId)?.push({ id: o.id, title: o.title, type: o.type });
   }
 
   return (
