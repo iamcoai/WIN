@@ -6,29 +6,49 @@ export function EmptyState({
   title,
   description,
   action,
+  tone = "default",
   className,
 }: {
   icon?: LucideIcon;
   title: string;
   description?: string;
   action?: React.ReactNode;
+  tone?: "default" | "subtle";
   className?: string;
 }) {
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-win-charcoal/15 bg-white px-6 py-12 text-center",
+        "flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed px-6 py-14 text-center",
+        tone === "default"
+          ? "border-border bg-card"
+          : "border-border/60 bg-transparent",
         className,
       )}
     >
       {Icon ? (
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-win-gold/15 text-win-gold">
-          <Icon className="h-6 w-6" />
+        <div className="relative mb-1 flex h-14 w-14 items-center justify-center">
+          <span
+            aria-hidden
+            className="absolute inset-0 rounded-full bg-primary/10"
+          />
+          <span
+            aria-hidden
+            className="absolute inset-2 rounded-full bg-primary/15"
+          />
+          <Icon
+            className="relative h-6 w-6 text-primary"
+            strokeWidth={1.75}
+          />
         </div>
       ) : null}
-      <h3 className="text-base font-semibold text-win-charcoal">{title}</h3>
+      <h3 className="font-heading text-[0.9375rem] font-semibold tracking-tight text-foreground">
+        {title}
+      </h3>
       {description ? (
-        <p className="max-w-sm text-sm text-win-charcoal/60">{description}</p>
+        <p className="max-w-sm text-[0.8125rem] leading-relaxed text-muted-foreground">
+          {description}
+        </p>
       ) : null}
       {action ? <div className="mt-2">{action}</div> : null}
     </div>
