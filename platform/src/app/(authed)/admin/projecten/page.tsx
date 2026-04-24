@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray, isNotNull } from "drizzle-orm";
 import { PageBody, PageHeader } from "@/components/ui/page-header";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +9,10 @@ import { project, task } from "@/lib/db/schema";
 
 export default async function ProjectenPage() {
   const projects = await db.select().from(project).orderBy(desc(project.createdAt));
-  const tasks = await db.select().from(task);
+  const projectIds = projects.map((p) => p.id);
+  const tasks = projectIds.length
+    ? await db.select().from(task).where(inArray(task.projectId, projectIds))
+    : [];
   const tasksByProject = new Map<string, typeof tasks>();
   for (const t of tasks) {
     if (!t.projectId) continue;

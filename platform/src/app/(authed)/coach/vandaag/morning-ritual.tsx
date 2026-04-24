@@ -12,15 +12,12 @@ export function MorningRitual({ ritualDone }: { ritualDone: boolean }) {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    if (running && seconds > 0) {
-      intervalRef.current = setInterval(() => {
-        setSeconds((s) => Math.max(0, s - 1));
-      }, 1000);
-    }
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [running, seconds]);
+    if (!running) return;
+    const id = setInterval(() => {
+      setSeconds((s) => Math.max(0, s - 1));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [running]);
 
   useEffect(() => {
     if (seconds === 0 && running) {
