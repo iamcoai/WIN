@@ -14,10 +14,11 @@
 *.log
 npm-debug.log*
 
-# Env files (root level)
+# Env files (root + any workspace)
 .env
 .env.*
 !.env.example
+!**/.env.example
 
 # Node (root level — workspace tooling, not the web/ app which has its own)
 /node_modules
