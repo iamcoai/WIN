@@ -18,6 +18,9 @@ import {
   PanelsTopLeft,
   UserCircle,
   Sparkles,
+  Target,
+  CheckSquare,
+  Sun,
 } from "lucide-react";
 
 export type Role = "admin" | "coach" | "client";
@@ -41,21 +44,27 @@ export const navConfig: Record<Role, NavItem[]> = {
     { label: "Profiel", href: "/app/profiel", icon: UserCircle },
   ],
   coach: [
-    { label: "Overzicht", href: "/coach", icon: LayoutDashboard, mobilePrimary: true },
+    { label: "Vandaag", href: "/coach/vandaag", icon: Sun, mobilePrimary: true },
+    { label: "Taken", href: "/coach/taken", icon: CheckSquare, mobilePrimary: true },
+    { label: "Agenda", href: "/coach/agenda", icon: Calendar, mobilePrimary: true },
     { label: "Cliënten", href: "/coach/clienten", icon: Users, mobilePrimary: true },
-    { label: "Trajecten", href: "/coach/trajecten", icon: BookOpen, mobilePrimary: true },
-    { label: "Sessies", href: "/coach/sessies", icon: Calendar, mobilePrimary: true },
     { label: "Meer", href: "/coach/meer", icon: PanelsTopLeft, mobilePrimary: true },
-    { label: "Formulieren", href: "/coach/formulieren", icon: FileText },
-    { label: "Rapportage", href: "/coach/rapportage", icon: BarChart3 },
+    { label: "Overzicht", href: "/coach", icon: LayoutDashboard },
+    { label: "Trajecten", href: "/coach/trajecten", icon: BookOpen },
+    { label: "Sessies", href: "/coach/sessies", icon: Calendar },
     { label: "Chat", href: "/coach/chat", icon: MessageSquare },
+    { label: "Rapportage", href: "/coach/rapportage", icon: BarChart3 },
+    { label: "Formulieren", href: "/coach/formulieren", icon: FileText },
   ],
   admin: [
-    { label: "Dashboard", href: "/admin", icon: LayoutDashboard, mobilePrimary: true },
+    { label: "Vandaag", href: "/coach/vandaag", icon: Sun, mobilePrimary: true },
     { label: "CRM", href: "/admin/crm", icon: Briefcase, mobilePrimary: true },
     { label: "Pipeline", href: "/admin/crm/pipeline", icon: Kanban, mobilePrimary: true },
-    { label: "Workshops", href: "/admin/workshops", icon: Calendar, mobilePrimary: true },
+    { label: "Agenda", href: "/coach/agenda", icon: Calendar, mobilePrimary: true },
     { label: "Meer", href: "/admin/meer", icon: PanelsTopLeft, mobilePrimary: true },
+    { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+    { label: "Taken", href: "/coach/taken", icon: CheckSquare },
+    { label: "Workshops", href: "/admin/workshops", icon: Calendar },
     { label: "Users", href: "/admin/users", icon: Users },
     { label: "Betalingen", href: "/admin/payments", icon: CreditCard },
     { label: "Projecten", href: "/admin/projecten", icon: Briefcase },
@@ -76,6 +85,6 @@ export function roleFromPath(path: string): Role | null {
 
 export function roleHome(role: Role): string {
   if (role === "admin") return "/admin";
-  if (role === "coach") return "/coach";
+  if (role === "coach") return "/coach/vandaag";
   return "/app";
 }

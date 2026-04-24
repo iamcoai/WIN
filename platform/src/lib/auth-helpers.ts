@@ -50,6 +50,6 @@ export function hasRole(userRole: Role | string | undefined, minRole: Role) {
 /** Redirect target for a role's home. Admin > coach > client. */
 export function roleHome(role: Role | string): string {
   if (role === "admin") return "/admin";
-  if (role === "coach") return "/coach";
+  if (role === "coach") return "/coach/vandaag";
   return "/app";
 }
