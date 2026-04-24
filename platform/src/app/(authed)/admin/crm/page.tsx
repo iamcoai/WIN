@@ -13,7 +13,7 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Search } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Users } from "lucide-react";
 import { db } from "@/lib/db";
@@ -156,40 +156,45 @@ export default async function CRMContactsPage({
         actions={<NewContactDialog tags={allTags} customFields={contactCustomFields} />}
       />
       <PageBody className="max-w-full">
-        {/* Search + filters */}
-        <form className="mb-4 flex flex-wrap items-center gap-2" action="/admin/crm">
-          <Input
-            name="q"
-            defaultValue={q}
-            placeholder="Zoek op naam, e-mail, bedrijf…"
-            className="h-10 max-w-sm flex-1"
-          />
-          {lifecycle.map((l) => (
-            <input key={`lc-${l}`} type="hidden" name="lifecycle" value={l} />
-          ))}
-          {tagIds.map((t) => (
-            <input key={`tg-${t}`} type="hidden" name="tag" value={t} />
-          ))}
-          {sort !== "recent" ? (
-            <input type="hidden" name="sort" value={sort} />
-          ) : null}
-          <Button type="submit" variant="secondary">
-            Zoeken
-          </Button>
-          {activeFilters > 0 ? (
-            <Link
-              href={{ pathname: "/admin/crm" }}
-              className="text-xs text-muted-foreground underline-offset-4 hover:underline"
-            >
-              Alles resetten
-            </Link>
-          ) : null}
-        </form>
+        {/* Search + filters toolbar */}
+        <div className="mb-5 rounded-xl border border-border bg-card p-3 shadow-xs">
+          <form className="flex flex-wrap items-center gap-2" action="/admin/crm">
+            <div className="relative flex-1 min-w-[14rem]">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
+              <Input
+                name="q"
+                defaultValue={q}
+                placeholder="Zoek op naam, e-mail of bedrijf…"
+                className="h-9 pl-9"
+              />
+            </div>
+            {lifecycle.map((l) => (
+              <input key={`lc-${l}`} type="hidden" name="lifecycle" value={l} />
+            ))}
+            {tagIds.map((t) => (
+              <input key={`tg-${t}`} type="hidden" name="tag" value={t} />
+            ))}
+            {sort !== "recent" ? (
+              <input type="hidden" name="sort" value={sort} />
+            ) : null}
+            <Button type="submit" variant="default" size="sm">
+              Zoeken
+            </Button>
+            {activeFilters > 0 ? (
+              <Link
+                href={{ pathname: "/admin/crm" }}
+                className="ml-1 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                Resetten
+              </Link>
+            ) : null}
+          </form>
+        </div>
 
         {/* Lifecycle chips */}
         <div className="mb-2 flex flex-wrap items-center gap-1.5">
-          <span className="mr-2 text-xs font-medium text-muted-foreground">
-            Status:
+          <span className="mr-2 text-[0.6875rem] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+            Status
           </span>
           {(["lead", "prospect", "customer", "archived"] as const).map((l) => {
             const active = lifecycle.includes(l);
@@ -205,10 +210,10 @@ export default async function CRMContactsPage({
                 key={l}
                 href={{ pathname: "/admin/crm", query: qs.toString() ? Object.fromEntries(qs) : undefined } as never}
                 className={cn(
-                  "rounded-full border px-2.5 py-1 text-xs transition-colors",
+                  "rounded-full border px-2.5 py-1 text-[0.75rem] font-medium transition-all duration-[var(--duration-fast)]",
                   active
-                    ? "border-primary bg-primary/10 text-primary"
-                    : "border-border text-muted-foreground hover:bg-muted",
+                    ? "border-primary bg-primary/12 text-primary shadow-xs"
+                    : "border-border text-muted-foreground hover:border-border-strong hover:bg-muted hover:text-foreground",
                 )}
               >
                 {l}
@@ -219,9 +224,9 @@ export default async function CRMContactsPage({
 
         {/* Tag chips */}
         {allTags.length ? (
-          <div className="mb-5 flex flex-wrap items-center gap-1.5">
-            <span className="mr-2 text-xs font-medium text-muted-foreground">
-              Tags:
+          <div className="mb-6 flex flex-wrap items-center gap-1.5">
+            <span className="mr-2 text-[0.6875rem] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+              Tags
             </span>
             {allTags.map((t) => {
               const active = tagIds.includes(t.id);
@@ -260,7 +265,7 @@ export default async function CRMContactsPage({
                     <TableRow>
                       <TableHead>Naam</TableHead>
                       <TableHead>Bedrijf</TableHead>
-                      <TableHead>Email</TableHead>
+                      <TableHead>E-mail</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Tags</TableHead>
                       <TableHead className="text-right">Deals</TableHead>
@@ -268,23 +273,36 @@ export default async function CRMContactsPage({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {contacts.map((c) => (
-                      <TableRow
-                        key={c.id}
-                        className="cursor-pointer"
-                      >
+                    {contacts.map((c) => {
+                      const fullName =
+                        [c.firstName, c.lastName].filter(Boolean).join(" ") || "—";
+                      const initials =
+                        fullName
+                          .split(" ")
+                          .filter(Boolean)
+                          .map((p) => p[0])
+                          .join("")
+                          .slice(0, 2)
+                          .toUpperCase() || "··";
+                      return (
+                      <TableRow key={c.id} className="cursor-pointer">
                         <TableCell>
                           <Link
                             href={{ pathname: `/admin/crm/contacts/${c.id}` }}
-                            className="font-medium hover:underline"
+                            className="flex items-center gap-2.5 font-medium hover:text-primary"
                           >
-                            {[c.firstName, c.lastName].filter(Boolean).join(" ") || "—"}
+                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/12 text-[10px] font-semibold text-primary">
+                              {initials}
+                            </span>
+                            <span className="flex flex-col">
+                              <span>{fullName}</span>
+                              {c.jobTitle ? (
+                                <span className="text-[0.75rem] font-normal text-muted-foreground">
+                                  {c.jobTitle}
+                                </span>
+                              ) : null}
+                            </span>
                           </Link>
-                          {c.jobTitle ? (
-                            <div className="text-xs text-muted-foreground">
-                              {c.jobTitle}
-                            </div>
-                          ) : null}
                         </TableCell>
                         <TableCell className="text-muted-foreground">
                           {c.company ?? "—"}
@@ -322,14 +340,19 @@ export default async function CRMContactsPage({
                             })}
                           </div>
                         </TableCell>
-                        <TableCell className="text-right font-medium">
+                        <TableCell className="text-right font-semibold tabular-nums">
                           {dealCountMap.get(c.id) ?? 0}
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground">
-                          {new Intl.DateTimeFormat("nl-NL").format(new Date(c.updatedAt))}
+                          {new Intl.DateTimeFormat("nl-NL", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          }).format(new Date(c.updatedAt))}
                         </TableCell>
                       </TableRow>
-                    ))}
+                    );
+                    })}
                   </TableBody>
                 </Table>
               </div>
