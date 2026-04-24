@@ -58,6 +58,63 @@ Kick (Claude Opus) is de **technische mede-oprichter** naast Chris. De relatie:
 
 > Kick spreekt in CTO-toon: "ik doe X en Y, ik laat Z aan jou over" — niet "wil je dat ik X doe?"
 
+## ⚠️ VERPLICHT — G-Stack is de enige werkwijze voor development
+
+**Dit is een harde, niet-onderhandelbare regel.** Elk stuk development-werk op WIN loopt via de G-Stack sprint-flow. Niet als suggestie, als **vereiste**.
+
+### Wanneer G-Stack verplicht is
+
+Elke taak die raakt aan het bouwen of aanpassen van de software:
+
+| Domein | Voorbeelden | G-Stack verplicht? |
+|---|---|---|
+| **Frontend** | nieuwe pagina, sectie, component, styling, layout, animatie, user interaction | ✅ Ja |
+| **Backend** | API-route, server action, Supabase query, authenticatie, webhook | ✅ Ja |
+| **Infrastructuur** | Vercel-config, env-vars, database-schema, migraties, DNS, CI/CD | ✅ Ja |
+| **Components** | nieuwe React-component, shadcn toevoegen, component-refactor | ✅ Ja |
+| **User flows** | signup, login, checkout, onboarding, Plug-and-Pay integratie | ✅ Ja |
+| **Testing** | unit tests, e2e, visual regression, QA-flow opzetten | ✅ Ja |
+| **Data-modellering** | Supabase tabel-ontwerp, RLS-policies, Kanban-structuur | ✅ Ja |
+| **Integraties** | externe API's aansluiten (Plug-and-Pay, Google Calendar, etc.) | ✅ Ja |
+| **Security** | auth-review, secrets-audit, OWASP-check | ✅ Ja |
+
+### De stap-voor-stap sprint (altijd volgen voor bovenstaande)
+
+| # | Fase | Primaire skill | Wat je concreet doet |
+|---|---|---|---|
+| 1 | **Think** | `/office-hours` | Challenge de scope met 6 forcing questions. Nog vóór één regel code. Zowel voor nieuwe features als voor niet-triviale refactors. |
+| 2 | **Plan** | `/autoplan` *(of de losse `/plan-*-review` skills)* | Architectuur, design, DX, CEO-scope in één review-pipeline. Spec schrijft naar `docs/superpowers/specs/`. |
+| 3 | **Build** | *(geen skill — code schrijven)* | Implementatie conform plan. TDD waar mogelijk (`superpowers:test-driven-development`). |
+| 4 | **Review** | `/review` + `/cso` *(bij security-gevoelig werk)* | Staff-engineer audit + (voor auth/Supabase/credentials) security-audit. |
+| 5 | **Test** | `/qa` *(of `/qa-only` voor rapport-only)* | Browse-based end-to-end. Fixt bugs met atomic commits. |
+| 6 | **Ship** | `/win-deploy-check` → `/ship` → `/land-and-deploy` → `/canary` | WIN-gauntlet → PR → merge+deploy → post-deploy monitoring. |
+| 7 | **Reflect** | `/retro` + `/learn` | Wekelijks retrospectief, learnings vastgelegd voor volgende sessies. |
+
+### Verplichting bij sessiestart
+
+**Bij elke development-sessie kondig je expliciet aan welke fase je in zit.** Voorbeeld:
+> *"Oké, dit is een frontend-taak (nieuwe testimonial-sectie op /coaching). Ik start nu G-Stack — fase 1: `/office-hours` om te checken of de scope klopt."*
+
+Daarna doorloop je stap-voor-stap de sprint. Je **mag** fases overslaan, maar alleen met **expliciete motivatie** aan Chris (bv. *"skip Think — dit is een pre-goedgekeurde taak uit blok 2 spec, ga direct naar Plan"*).
+
+### Uitzonderingen (de enige)
+
+De G-Stack sprint is **NIET** verplicht bij:
+
+1. **Triviale edits** — typo fix in copy, 1-karakter wijziging, comment toevoegen. (Build + commit direct volstaat.)
+2. **Read-only explorations** — file lezen, grep, status checken. (Geen skill nodig.)
+3. **Meta-werk** — CLAUDE.md updaten, memory schrijven, skill zelf bouwen. (Gebruik wel de relevante meta-skills zoals `claude-md-management:revise-claude-md` of `skill-creator:skill-creator`.)
+4. **Documentatie** — README tweaks, docs/ bijwerken zonder codewijziging. (Behalve `/document-release` na een ship.)
+5. **Strategie-gesprekken** — brainstorm met Chris waar nog geen concrete build-opdracht uit voortkomt.
+
+**Als je twijfelt of een taak onder de uitzondering valt: ga ervan uit dat G-Stack verplicht is.** False positive (skill onnodig draaien) kost 30 seconden; false negative (code slopen zonder review) kost uren.
+
+### Verificatie dat je het echt doet
+
+Chris mag op elk moment een **check-in** doen door te vragen *"welke fase zit je in?"*. Als je dan geen fase kunt noemen óf de fase niet matcht met de skill die je draait — dan volg je G-Stack niet en moet je terug naar stap 1.
+
+> **Waarom zo hard?** Omdat ad-hoc development bij WIN te duur is: Reza vertrouwt op ons voor een platform dat zijn business runt, en AI-driven ad-hoc code levert technical debt die over 3 maanden niemand meer kan onderhouden. De sprint kost 15 minuten extra; de debt kost dagen te repareren.
+
 
 ## Wat bouwen we hier?
 
