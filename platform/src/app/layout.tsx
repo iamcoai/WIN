@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import { Inter, Manrope, Geist } from "next/font/google";
+import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -31,9 +30,27 @@ export default function RootLayout({
   return (
     <html
       lang="nl"
-      className={cn("scroll-smooth", inter.variable, manrope.variable, "font-sans", geist.variable)}
+      className={cn(
+        "scroll-smooth",
+        inter.variable,
+        manrope.variable,
+        "font-sans",
+      )}
+      suppressHydrationWarning
     >
-      <body className="min-h-screen antialiased">{children}</body>
+      <body className="min-h-screen antialiased">
+        {children}
+        <Toaster
+          position="top-right"
+          richColors
+          closeButton
+          toastOptions={{
+            classNames: {
+              toast: "font-sans shadow-lg border border-border rounded-xl",
+            },
+          }}
+        />
+      </body>
     </html>
   );
 }
