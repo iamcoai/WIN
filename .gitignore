@@ -32,3 +32,6 @@ npm-debug.log*
 
 # Playwright MCP runtime cache (console logs + page snapshots)
 .playwright-mcp/
+
+# Claude Code scheduled-task lock files
+.claude/scheduled_tasks.lock
