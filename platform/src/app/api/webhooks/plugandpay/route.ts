@@ -4,6 +4,9 @@ import { db } from "@/lib/db";
 import { webhookEvent } from "@/lib/db/schema";
 import { handlePlugAndPayEvent } from "@/modules/plugandpay/events/handler";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 const SIGNATURE_HEADER = "x-plugandpay-signature";
 const TRIGGER_HEADER = "x-plugandpay-trigger";
 
