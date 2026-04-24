@@ -324,10 +324,18 @@ export const task = pgTable(
     position: integer("position").default(0).notNull(),
     assigneeId: text("assignee_id").references(() => user.id, { onDelete: "set null" }),
     dueAt: timestamp("due_at"),
+    contactId: text("contact_id"),
+    dealId: text("deal_id"),
+    workshopId: text("workshop_id"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
-  (t) => [index("task_project_col_idx").on(t.projectId, t.column, t.position)],
+  (t) => [
+    index("task_project_col_idx").on(t.projectId, t.column, t.position),
+    index("task_contact_idx").on(t.contactId),
+    index("task_deal_idx").on(t.dealId),
+    index("task_workshop_idx").on(t.workshopId),
+  ],
 );
 
 // Relations

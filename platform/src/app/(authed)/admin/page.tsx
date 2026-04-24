@@ -9,13 +9,16 @@ import {
   PanelsTopLeft,
   Link as LinkIcon,
   Settings,
+  Calendar,
 } from "lucide-react";
 import Link from "next/link";
 
 export default function AdminHome() {
   const tiles = [
+    { href: "/admin/crm", icon: Briefcase, title: "CRM — Contacten", desc: "Contacten, tags, segmentatie." },
+    { href: "/admin/crm/pipeline", icon: Kanban, title: "Pipeline", desc: "Deals, sleep & herorden." },
+    { href: "/admin/workshops", icon: Calendar, title: "Workshops", desc: "Events + aanmeldingen." },
     { href: "/admin/users", icon: Users, title: "Users", desc: "Rollen, toegang." },
-    { href: "/admin/crm", icon: Briefcase, title: "CRM", desc: "Leads + enrollments." },
     { href: "/admin/payments", icon: CreditCard, title: "Betalingen", desc: "Plug and Pay overzicht." },
     { href: "/admin/projecten", icon: Briefcase, title: "Projecten", desc: "Interne projecten." },
     { href: "/admin/kanban", icon: Kanban, title: "Kanban", desc: "Workflow-borden." },
