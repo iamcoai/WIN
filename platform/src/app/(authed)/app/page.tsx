@@ -1,20 +1,21 @@
 import { PageBody, PageHeader } from "@/components/ui/page-header";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, BookOpen, MessageSquare, Calendar } from "lucide-react";
+import { ArrowUpRight, BookOpen, Sparkles, MessageSquare, Calendar, FileText } from "lucide-react";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth-helpers";
 
 export default async function ClientHome() {
   const current = await getCurrentUser();
   const name = current?.user.name ?? "";
+  const firstName = name.split(" ")[0];
 
-  const cards = [
+  const tiles = [
     {
       href: "/app/trajecten",
       icon: BookOpen,
       title: "Mijn traject",
-      desc: "Waar sta ik nu, wat is de volgende stap.",
+      desc: "Waar sta ik — wat is de volgende stap.",
     },
     {
       href: "/app/habits",
@@ -34,41 +35,47 @@ export default async function ClientHome() {
       title: "Afspraken",
       desc: "Intake, sessies en herinneringen.",
     },
+    {
+      href: "/app/formulieren",
+      icon: FileText,
+      title: "Formulieren",
+      desc: "Intake en reflectie — op je eigen tempo.",
+    },
   ];
 
   return (
     <>
       <PageHeader
-        title={`Welkom terug${name ? `, ${name.split(" ")[0]}` : ""}`}
-        description="Je persoonlijke ruimte. Adem. Landt in wat er nu is, dan zetten we een stap."
+        title={firstName ? `Welkom terug, ${firstName}` : "Welkom terug"}
+        description="Je persoonlijke ruimte. Adem. Land in wat er nu is — dan zetten we een stap."
       />
       <PageBody>
-        <div className="mb-6 flex flex-wrap items-center gap-2">
-          <Badge variant="secondary" className="bg-primary/10 text-primary">
-            Zin
-          </Badge>
-          <Badge variant="secondary" className="bg-primary/10 text-primary">
-            Betekenis
-          </Badge>
-          <Badge variant="secondary" className="bg-primary/10 text-primary">
-            Vrijheid
-          </Badge>
+        <div className="mb-8 flex flex-wrap items-center gap-2">
+          <Badge variant="gold">Zin</Badge>
+          <Badge variant="gold">Betekenis</Badge>
+          <Badge variant="gold">Vrijheid</Badge>
+          <span className="ml-1 text-xs text-muted-foreground/80">
+            · waar we samen naartoe werken
+          </span>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          {cards.map((c) => {
-            const Icon = c.icon;
+        <div className="grid gap-3 sm:grid-cols-2">
+          {tiles.map((t) => {
+            const Icon = t.icon;
             return (
-              <Link key={c.href} href={{ pathname: c.href }} className="group">
-                <Card className="transition-shadow group-hover:shadow-md">
+              <Link key={t.href} href={{ pathname: t.href }} className="group">
+                <Card className="relative overflow-hidden transition-all duration-[var(--duration-fast)] group-hover:-translate-y-[1px] group-hover:shadow-md group-hover:border-border-strong">
                   <CardHeader>
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                        <Icon className="h-5 w-5" />
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/12 text-primary">
+                        <Icon className="h-5 w-5" strokeWidth={1.8} />
                       </div>
-                      <CardTitle>{c.title}</CardTitle>
+                      <ArrowUpRight className="h-4 w-4 -translate-x-1 text-muted-foreground/40 transition-all duration-[var(--duration-fast)] group-hover:-translate-y-0.5 group-hover:translate-x-0 group-hover:text-primary" />
                     </div>
-                    <CardDescription className="pt-1">{c.desc}</CardDescription>
+                    <CardTitle className="mt-3 text-base">{t.title}</CardTitle>
+                    <CardDescription className="leading-relaxed">
+                      {t.desc}
+                    </CardDescription>
                   </CardHeader>
                 </Card>
               </Link>
