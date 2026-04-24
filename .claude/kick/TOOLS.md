@@ -19,10 +19,11 @@ Read, Edit, Write, Bash, Glob, Grep, WebFetch, WebSearch, TaskCreate, Skill, Ask
 
 ### MCP servers (actief voor WIN)
 - **Playwright** — headless browser, backup voor `/browse`
-- **Context7** — actuele library docs (Next.js 16, Tailwind 4, shadcn, Supabase) — **altijd** raadplegen vóór library-specifieke code
+- **Context7** — actuele library docs (Next.js 16, Tailwind 4, shadcn, Supabase, Plug-and-Pay SDK) — **altijd** raadplegen vóór library-specifieke code
 - **Stitch** (Google Labs) — primary design-tool voor WIN, via HTTP MCP, API key geconfigureerd
 - **Word document server** — voor `content/webteksten/*.docx` (blok 2 content-analyse)
-- **GitHub** — PRs, issues, code search (iamcoai/WIN)
+- **GitHub** — PRs, issues, code search. Actieve gh-account voor MCP = `cocreatie` (token-scopes: gist, read:org, repo, workflow). Git push naar `iamcoai/WIN` vereist `gh auth switch -u iamcoai` vooraf — push gaat **niet** via MCP.
+- **Supabase MCP** (hosted: `mcp.supabase.com/mcp`, project-scoped) — database werkt via de `win-supabase-mcp` skill. Bij sessie-start: `claude mcp list | grep supabase` om te verifiëren. Volledige reference: memory `reference_supabase_mcp`. **Nooit tegen prod.**
 - **PostHog** — analytics (nog niet aangesloten, optie voor blok 4)
 - **Notion / Gmail / Google Calendar / Google Drive** — Chris's productivity suite, beschikbaar voor toekomstige integraties
 
@@ -115,6 +116,7 @@ Vóór elke actie scan ik triggers. Match → laad skill via `Skill` tool vóór
 - *copy / tekst / herschrijf / pas aan / headline* → `/win-copy-edit`
 - *kleuren / fonts / merk / tone of voice* → `/win-brand-rules`
 - *deploy-check / ready to ship / pre-deploy* → `/win-deploy-check`
+- *supabase / database / schema / migratie / drizzle push / rls / policy / db-logs / types genereren / tabel toevoegen* → `/win-supabase-mcp`
 
 ### Meta-triggers
 - *mem / memory / leg vast / update jezelf* → `/mem`

@@ -28,3 +28,6 @@ npm-debug.log*
 
 # Stitch generated artifacts (if used at root)
 .stitch/
+
+# Playwright MCP runtime cache (console logs + page snapshots)
+.playwright-mcp/
