@@ -1,8 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { randomBytes, createHmac, timingSafeEqual } from "node:crypto";
-import { db } from "@/lib/db";
-import { webhookEvent } from "@/lib/db/schema";
-import { handlePlugAndPayEvent } from "@/modules/plugandpay/events/handler";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -50,6 +47,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "invalid json" }, { status: 400 });
   }
 
+  const [{ db }, { webhookEvent }, { handlePlugAndPayEvent }, { eq }] =
+    await Promise.all([
+      import("@/lib/db"),
+      import("@/lib/db/schema"),
+      import("@/modules/plugandpay/events/handler"),
+      import("drizzle-orm"),
+    ]);
+
   const eventId = `wh_${randomBytes(8).toString("hex")}`;
   await db.insert(webhookEvent).values({
     id: eventId,
@@ -67,23 +72,17 @@ export async function POST(request: NextRequest) {
     await db
       .update(webhookEvent)
       .set({ processedAt: new Date() })
-      .where(eqById(eventId));
+      .where(eq(webhookEvent.id, eventId));
     return NextResponse.json({ ok: true, eventId, result });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     await db
       .update(webhookEvent)
       .set({ processedAt: new Date(), error: msg })
-      .where(eqById(eventId));
+      .where(eq(webhookEvent.id, eventId));
     return NextResponse.json(
       { ok: false, eventId, error: msg },
       { status: 500 },
     );
   }
-}
-
-// Helper scoped here to avoid re-importing eq for one call.
-import { eq } from "drizzle-orm";
-function eqById(id: string) {
-  return eq(webhookEvent.id, id);
 }
