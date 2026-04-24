@@ -1,0 +1,27 @@
+{
+  "name": "win",
+  "version": "1.0.0",
+  "description": "Platform voor **WIN — Weerbaarheids Instituut Nederland**, het instituut van Reza voor *Weerbaarheidstherapie*: een integratieve aanpak die coaching combineert met psychofysieke training, gericht op professionals die hun weerbaarheid willen versterken.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iamcoai/WIN.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/iamcoai/WIN/issues"
+  },
+  "homepage": "https://github.com/iamcoai/WIN#readme",
+  "dependencies": {
+    "@google/stitch-sdk": "^0.1.0"
+  }
+}
