@@ -39,10 +39,19 @@ export function Navigation() {
           ))}
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <a
+            href="http://localhost:3002/login"
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:border-win-gold hover:text-win-gold transition-colors"
+          >
+            Inloggen
+            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </a>
           <Link
             href="#kennismaking"
-            className="bg-win-gold text-white px-6 py-2.5 rounded-lg font-semibold text-sm hover:bg-win-olive transition-colors"
+            className="bg-win-gold text-white px-5 py-2.5 rounded-lg font-semibold text-sm hover:bg-win-olive transition-colors"
           >
             Gratis Kennismaking
           </Link>
@@ -89,6 +98,12 @@ export function Navigation() {
               {link.label}
             </Link>
           ))}
+          <a
+            href="http://localhost:3002/login"
+            className="block border-t border-stone-200 pt-3 text-stone-600 font-medium hover:text-win-gold"
+          >
+            Inloggen →
+          </a>
         </div>
       )}
     </nav>
