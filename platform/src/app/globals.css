@@ -1,0 +1,426 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Design tokens
+   ───────────────────────────────────────────────────────────────────────
+   WIN is a warm, grounded, instituut-design. Key principles:
+   - Neutrals are charcoal-warm, not cool grey
+   - Gold is sparingly used as accent + primary action
+   - Shadows are slightly warm (tinted charcoal, not pure black)
+   - Motion is restrained — groundedness matters
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@theme inline {
+  /* WIN brand tokens — single source of truth */
+  --color-win-gold: #B8960C;
+  --color-win-olive: #4A4A2A;
+  --color-win-charcoal: #2C2C2C;
+  --color-win-cream: #F5F0E8;
+  --color-win-bronze: #1A1A1A;
+  --color-win-gold-soft: #D4B04A;
+  --color-win-gold-deep: #8A700A;
+
+  /* Fonts */
+  --font-headline: "Manrope", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-heading: "Manrope", sans-serif;
+  --font-sans: "Inter", sans-serif;
+
+  /* Type scale — display/heading/body/caption */
+  --text-display: 2.5rem;         /* 40px */
+  --text-display--line-height: 1.12;
+  --text-display--letter-spacing: -0.02em;
+  --text-h1: 2rem;                /* 32px */
+  --text-h1--line-height: 1.15;
+  --text-h1--letter-spacing: -0.015em;
+  --text-h2: 1.5rem;              /* 24px */
+  --text-h2--line-height: 1.25;
+  --text-h2--letter-spacing: -0.01em;
+  --text-h3: 1.25rem;             /* 20px */
+  --text-h3--line-height: 1.3;
+  --text-caption: 0.75rem;        /* 12px */
+  --text-caption--letter-spacing: 0.02em;
+
+  /* Elevation — warm-tinted shadows (charcoal base, not pure black) */
+  --shadow-xs: 0 1px 2px 0 rgba(44, 44, 42, 0.04);
+  --shadow-sm: 0 1px 2px 0 rgba(44, 44, 42, 0.05), 0 1px 3px 0 rgba(44, 44, 42, 0.06);
+  --shadow-md: 0 2px 4px -1px rgba(44, 44, 42, 0.06), 0 4px 8px -2px rgba(44, 44, 42, 0.08);
+  --shadow-lg: 0 4px 8px -2px rgba(44, 44, 42, 0.08), 0 10px 20px -4px rgba(44, 44, 42, 0.10);
+  --shadow-xl: 0 8px 16px -4px rgba(44, 44, 42, 0.10), 0 20px 32px -8px rgba(44, 44, 42, 0.12);
+  --shadow-focus: 0 0 0 3px rgba(184, 150, 12, 0.22);
+  --shadow-inset: inset 0 1px 2px rgba(44, 44, 42, 0.05);
+
+  /* Motion tokens — short + grounded */
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-instant: 80ms;
+  --duration-fast: 140ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+
+  /* shadcn token bindings → WIN-branded */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-surface: var(--surface);
+  --color-surface-subtle: var(--surface-subtle);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Radii */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  /* ─── Surfaces ─── */
+  /* Page = warm cream for grounded feel. Cards = crisp white to create
+     hierarchy. Subtle = slightly-darker cream for striped rows / muted zones.
+     Elevated = pure white with shadow to float above the page. */
+  --background: #FAF6EF;            /* warmer than win-cream, easier on eyes */
+  --foreground: #2C2C2C;            /* win-charcoal */
+  --surface: #FFFFFF;               /* primary card surface */
+  --surface-subtle: #F5F0E8;        /* win-cream — for subtle panels, headers */
+  --surface-elevated: #FFFFFF;      /* elevated overlays */
+
+  /* ─── Card / popover ─── */
+  --card: #FFFFFF;
+  --card-foreground: #2C2C2C;
+  --popover: #FFFFFF;
+  --popover-foreground: #2C2C2C;
+
+  /* ─── Primary + secondary ─── */
+  --primary: #B8960C;               /* win-gold */
+  --primary-foreground: #FFFFFF;
+  --secondary: #4A4A2A;             /* win-olive */
+  --secondary-foreground: #F5F0E8;
+
+  /* ─── Muted + accent ─── */
+  --muted: rgba(44, 44, 42, 0.055);
+  --muted-foreground: rgba(44, 44, 42, 0.65);
+  --accent: rgba(184, 150, 12, 0.10);
+  --accent-foreground: #4A4A2A;
+
+  /* ─── Semantic states (harmonised with palette) ─── */
+  --success: #2F7D5B;               /* forest — complements olive */
+  --success-foreground: #FFFFFF;
+  --warning: #B8700C;               /* warm amber — kin to gold */
+  --warning-foreground: #FFFFFF;
+  --info: #3B6EA5;                  /* calm blue */
+  --info-foreground: #FFFFFF;
+  --destructive: #B91C1C;
+
+  /* ─── Borders ─── */
+  --border: rgba(44, 44, 42, 0.10);
+  --border-strong: rgba(44, 44, 42, 0.20);
+  --input: rgba(44, 44, 42, 0.16);
+  --ring: rgba(184, 150, 12, 0.45);
+
+  /* ─── Charts ─── */
+  --chart-1: #B8960C;
+  --chart-2: #4A4A2A;
+  --chart-3: #2F7D5B;
+  --chart-4: #D4B04A;
+  --chart-5: #3B6EA5;
+
+  --radius: 0.625rem;
+
+  /* ─── Sidebar tokens ─── */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #2C2C2C;
+  --sidebar-primary: #B8960C;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: rgba(184, 150, 12, 0.10);
+  --sidebar-accent-foreground: #4A4A2A;
+  --sidebar-border: rgba(44, 44, 42, 0.08);
+  --sidebar-ring: rgba(184, 150, 12, 0.40);
+}
+
+.dark {
+  --background: #141414;
+  --foreground: #F5F0E8;
+  --surface: #1F1F1F;
+  --surface-subtle: #1A1A1A;
+  --surface-elevated: #262626;
+
+  --card: #1F1F1F;
+  --card-foreground: #F5F0E8;
+  --popover: #1F1F1F;
+  --popover-foreground: #F5F0E8;
+
+  --primary: #D4B04A;
+  --primary-foreground: #141414;
+  --secondary: #4A4A2A;
+  --secondary-foreground: #F5F0E8;
+
+  --muted: rgba(245, 240, 232, 0.06);
+  --muted-foreground: rgba(245, 240, 232, 0.60);
+  --accent: rgba(212, 176, 74, 0.16);
+  --accent-foreground: #F5F0E8;
+
+  --success: #4CA87C;
+  --success-foreground: #141414;
+  --warning: #D69046;
+  --warning-foreground: #141414;
+  --info: #6B9AD1;
+  --info-foreground: #141414;
+  --destructive: #DC2626;
+
+  --border: rgba(245, 240, 232, 0.10);
+  --border-strong: rgba(245, 240, 232, 0.20);
+  --input: rgba(245, 240, 232, 0.14);
+  --ring: rgba(212, 176, 74, 0.55);
+
+  --chart-1: #D4B04A;
+  --chart-2: #7A7A3A;
+  --chart-3: #4CA87C;
+  --chart-4: #4A4A2A;
+  --chart-5: #6B9AD1;
+
+  --sidebar: #1A1A1A;
+  --sidebar-foreground: #F5F0E8;
+  --sidebar-primary: #D4B04A;
+  --sidebar-primary-foreground: #141414;
+  --sidebar-accent: rgba(212, 176, 74, 0.14);
+  --sidebar-accent-foreground: #F5F0E8;
+  --sidebar-border: rgba(245, 240, 232, 0.10);
+  --sidebar-ring: rgba(212, 176, 74, 0.55);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Base layer polish — scrollbar, selection, focus
+   ═══════════════════════════════════════════════════════════════════════ */
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-headline);
+  letter-spacing: -0.01em;
+  font-feature-settings: "ss01" 1, "ss02" 1;
+}
+
+h1 { letter-spacing: -0.02em; }
+
+::selection {
+  background-color: rgba(184, 150, 12, 0.28);
+  color: var(--foreground);
+}
+
+/* Elegant custom scrollbar — subtle, not obtrusive */
+* {
+  scrollbar-color: rgba(44, 44, 42, 0.18) transparent;
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(44, 44, 42, 0.14);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background-color var(--duration-base) var(--ease-out);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(44, 44, 42, 0.28);
+  background-clip: padding-box;
+}
+
+.dark *::-webkit-scrollbar-thumb {
+  background-color: rgba(245, 240, 232, 0.14);
+}
+
+.dark *::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(245, 240, 232, 0.26);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Focus-visible — consistent across everything
+   ═══════════════════════════════════════════════════════════════════════ */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Motion utilities
+   ═══════════════════════════════════════════════════════════════════════ */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(8px); opacity: 0; }
+  to   { transform: translateX(0);   opacity: 1; }
+}
+
+@keyframes scale-in {
+  from { transform: scale(0.96); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in {
+  animation: fade-in var(--duration-base) var(--ease-out) both;
+}
+.animate-scale-in {
+  animation: scale-in var(--duration-fast) var(--ease-out) both;
+}
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(44, 44, 42, 0.04) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Typography utility classes (shortcuts to the type ramp)
+   ═══════════════════════════════════════════════════════════════════════ */
+.text-display {
+  font-family: var(--font-headline);
+  font-size: var(--text-display);
+  line-height: var(--text-display--line-height);
+  letter-spacing: var(--text-display--letter-spacing);
+  font-weight: 600;
+}
+.text-h1 {
+  font-family: var(--font-headline);
+  font-size: var(--text-h1);
+  line-height: var(--text-h1--line-height);
+  letter-spacing: var(--text-h1--letter-spacing);
+  font-weight: 600;
+}
+.text-h2 {
+  font-family: var(--font-headline);
+  font-size: var(--text-h2);
+  line-height: var(--text-h2--line-height);
+  letter-spacing: var(--text-h2--letter-spacing);
+  font-weight: 600;
+}
+.text-h3 {
+  font-family: var(--font-headline);
+  font-size: var(--text-h3);
+  line-height: var(--text-h3--line-height);
+  font-weight: 600;
+}
+.text-caption {
+  font-size: var(--text-caption);
+  letter-spacing: var(--text-caption--letter-spacing);
+  font-weight: 500;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Base layer
+   ═══════════════════════════════════════════════════════════════════════ */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+  }
+
+  /* Tighter default controls */
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--muted-foreground);
+    opacity: 0.8;
+  }
+}

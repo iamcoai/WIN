@@ -2,12 +2,20 @@
   "name": "win",
   "version": "1.0.0",
   "description": "Platform voor **WIN — Weerbaarheids Instituut Nederland**, het instituut van Reza voor *Weerbaarheidstherapie*: een integratieve aanpak die coaching combineert met psychofysieke training, gericht op professionals die hun weerbaarheid willen versterken.",
-  "main": "index.js",
-  "directories": {
-    "doc": "docs"
-  },
+  "private": true,
+  "workspaces": [
+    "web",
+    "platform",
+    "packages/*"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev:web": "npm run dev --workspace=web",
+    "dev:platform": "npm run dev --workspace=platform -- --port 3001",
+    "build": "npm run build --workspaces --if-present",
+    "build:web": "npm run build --workspace=web",
+    "build:platform": "npm run build --workspace=platform",
+    "lint": "npm run lint --workspaces --if-present",
+    "stitch": "node scripts/stitch-generate.mjs"
   },
   "repository": {
     "type": "git",
@@ -23,5 +31,8 @@
   "homepage": "https://github.com/iamcoai/WIN#readme",
   "dependencies": {
     "@google/stitch-sdk": "^0.1.0"
+  },
+  "devDependencies": {
+    "shadcn": "^4.4.0"
   }
 }

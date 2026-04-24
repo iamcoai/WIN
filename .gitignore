@@ -14,10 +14,11 @@
 *.log
 npm-debug.log*
 
-# Env files (root level)
+# Env files (root + any workspace)
 .env
 .env.*
 !.env.example
+!**/.env.example
 
 # Node (root level — workspace tooling, not the web/ app which has its own)
 /node_modules
@@ -31,3 +32,6 @@ npm-debug.log*
 
 # Playwright MCP runtime cache (console logs + page snapshots)
 .playwright-mcp/
+
+# Claude Code scheduled-task lock files
+.claude/scheduled_tasks.lock
