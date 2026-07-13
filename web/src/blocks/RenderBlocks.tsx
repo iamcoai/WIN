@@ -31,8 +31,8 @@ export function RenderBlocks({ blocks }: { blocks?: Pagina['layout'] }) {
   if (!blocks?.length) return null
   return (
     <>
-      {blocks.map((block) => (
-        <RenderBlock key={block.id ?? Math.random()} block={block} />
+      {blocks.map((block, i) => (
+        <RenderBlock key={block.id ?? `${block.blockType}-${i}`} block={block} />
       ))}
     </>
   )
