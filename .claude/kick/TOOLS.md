@@ -113,6 +113,7 @@ Vóór elke actie scan ik triggers. Match → laad skill via `Skill` tool vóór
 - *retro / wekelijkse review / hoe staat het ervoor* → `/retro`
 
 ### WIN-specifieke triggers
+- *cms / payload / content editbaar / Reza kan zelf editen / pagina bewerken via dashboard / collection / global / payload.config* → `/win-payload` (adapter, leest zelf de globale `payload` master-skill + `cms-migration`)
 - *sectie toevoegen / block erbij / nieuw blok op pagina* → `/win-new-section`
 - *copy / tekst / herschrijf / pas aan / headline* → `/win-copy-edit`
 - *kleuren / fonts / merk / tone of voice* → `/win-brand-rules`

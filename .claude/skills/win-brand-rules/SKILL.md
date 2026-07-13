@@ -1,6 +1,6 @@
 ---
 name: win-brand-rules
-description: Authoritative brand, design, and tone-of-voice rules for WIN (Weerbaarheids Instituut Nederland). Use this skill whenever editing any website copy, creating new sections, picking colors, choosing photos, writing CTAs, or deciding on typography. Use it even when the user hasn't explicitly asked about branding — any UI or copy work on the WIN site should consult this first to stay on-brand. Covers the waardedriehoek (Zin/Betekenis/Vrijheid), Reza's voice, the gold/olive/cream palette, Manrope/Inter typography, and the photo library.
+description: Authoritative brand, design, and tone-of-voice rules for WIN (Weerbaarheids Instituut Nederland). Use this skill whenever editing any website copy, creating new sections, picking colors, choosing photos, writing CTAs, or deciding on typography. Use it even when the user hasn't explicitly asked about branding — any UI or copy work on the WIN site should consult this first to stay on-brand. Covers the waardedriehoek (Zin/Betekenis/Vrijheid), Reza's voice, the gold/navy/cream palette (navy #324355 from the logo — green is out), Manrope/Inter typography, and the photo library.
 user-invocable: true
 ---
 
@@ -67,17 +67,20 @@ Defined in `web/src/app/globals.css` via Tailwind 4 `@theme inline`.
 | Token | Hex | Tailwind utility | Usage |
 |---|---|---|---|
 | `win-gold` | `#B8960C` | `bg-win-gold` `text-win-gold` | Primary accent — CTA buttons, quote accents, icon fills, keyword underlines |
-| `win-olive` | `#4A4A2A` | `bg-win-olive` `text-win-olive` | Headlines (H1/H2), dark bands, CTA hover state |
+| `win-navy` | `#324355` | `bg-win-navy` `text-win-navy` | Headlines (H1/H2), dark bands, CTA hover state — the blauw uit het logo |
 | `win-charcoal` | `#2C2C2C` | `text-win-charcoal` | Body text |
 | `win-cream` | `#F5F0E8` | `bg-win-cream` | Default page background, section alternation |
 | `win-bronze` | `#1A1A1A` | `bg-win-bronze` | Reserved — currently unused, only deploy on purpose |
 
+> **Kleurwijziging (juli 2026):** de oude groenige `win-olive` (#4A4A2A) is site-breed vervangen door **`win-navy` (#324355)** — de blauwe letterkleur uit het WIN-logo. Groen zit niet in de brand. `win-olive` bestaat in `globals.css` nog als alias op navy zodat oude verwijzingen niet breken, maar **gebruik in nieuwe code altijd `win-navy`**. Het palet is nu: **navy (donker/headlines) · goud (accent) · cream (achtergrond) · charcoal (body)** — precies de kleuren van het logo.
+
 ### Rules
 
-- **Never** use raw Tailwind color tokens like `bg-yellow-500` or `text-stone-700` in new code — use the WIN tokens. (The footer currently has a `hover:text-yellow-500` bug; that's wrong.)
+- **Never** use raw Tailwind color tokens like `bg-yellow-500` or `text-stone-700` in new code — use the WIN tokens.
 - `win-gold` is the **only** color that should appear on a CTA button by default.
-- Section rhythm: alternate `bg-win-cream` → `bg-white` → `bg-win-olive` (with white text) → `bg-win-cream`. This is the established rhythm on the homepage.
-- Photos tinted with `bg-win-olive/20` overlay for emotional weight.
+- Section rhythm: alternate `bg-win-cream` → `bg-white` → `bg-win-navy` (with white text) → `bg-win-cream`. This is the established rhythm on the homepage.
+- Photos tinted with `bg-win-navy/20` overlay for emotional weight.
+- **Geen groen.** Vermijd `win-olive`/olijf en alle groene tinten; de donkere merkkleur is navy.
 
 ## Typography
 
@@ -125,7 +128,7 @@ When highlighting a word inside an H2, use gold with a subtle underline:
 ```tsx
 <Link
   href="..."
-  className="bg-win-gold text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-win-olive transition-all shadow-xl"
+  className="bg-win-gold text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-win-navy transition-all shadow-xl"
 >
   Ontdek de Methodiek
 </Link>
@@ -143,7 +146,7 @@ When highlighting a word inside an H2, use gold with a subtle underline:
 
 **Nav CTA (klein, rechts in navigation):**
 ```tsx
-<Link className="bg-win-gold text-white px-6 py-2.5 rounded-lg font-semibold text-sm hover:bg-win-olive transition-colors">
+<Link className="bg-win-gold text-white px-6 py-2.5 rounded-lg font-semibold text-sm hover:bg-win-navy transition-colors">
   Gratis Kennismaking
 </Link>
 ```
@@ -154,21 +157,22 @@ Portrait images of Reza live in `web/public/images/portretten/` (44 photos, `202
 
 ### Rules for picking portraits
 
-- **Hero-scale portraits:** `20251206_Reza_1.jpg` (current homepage intro) is a strong default
-- **Conversational / in-gesprek:** `20251206_Reza_10.jpg` (currently used in "Herken je dit?" section)
+- **Let op:** niet elke `portretten/20251206_Reza_*.jpg` is een schone solo-foto — sommige zijn groeps-/scèneshots (bv. `_1`, `_5`, `_14`, `_17`, `_22`). De schoonste **solo** hero-portretten van Reza staan juist in `locatie/nimmerdor {1,6,8,9,11,17,18}.jpeg` (herfstbos). Gebruik die voor full-bleed hero's.
+- **Conversational / in-gesprek:** `images/herken-je-dit.jpg` (Reza in gesprek met een cliënt — gebruikt in de "Herken je dit?"-sectie op de homepage)
 - **Apply a subtle effect** — `grayscale-[0.3] hover:grayscale-0` creates editorial depth
-- **Overlay** — darker photos benefit from `bg-win-olive/20` overlay when used as backgrounds
+- **Overlay** — darker photos benefit from `bg-win-navy/20` overlay when used as backgrounds
+- **Face-centering:** bij full-bleed hero's met `object-cover` staat het hoofd vaak te hoog en wordt het afgesneden. Zet `object-position` naar boven (bv. `object-[center_22%]`) zodat het gezicht in het bovenste derde valt en de titel netjes over de borst staat. Zie het `PageHero`-component (`web/src/components/page-hero.tsx`).
 
 ### Rules for picking location photos
 
-- Herfst-sfeer (warm oranje, bos) past bij de WIN-look — `nimmerdor 1.jpeg` is currently in the hero
-- Location photos gain cinematic weight with `brightness-[0.7]` + gradient overlay
+- Herfst-sfeer (warm oranje, bos) past bij de WIN-look — `nimmerdor 1.jpeg` is currently in the homepage hero
+- Location photos gain cinematic weight with `brightness-[0.6]` + gradient overlay
 
 ## Design rule of last resort
 
 When something feels off-brand:
 
-1. Is it **warm** (cream/olive/gold, never cold blues or neon)?
+1. Is it **on-palette** (cream/navy/gold — het navy uit het logo, warm goud, geen groen en geen neon)?
 2. Does it speak **kalme kracht** (not hype, not therapy-fluff)?
 3. Could Reza say this sentence out loud without cringing?
 4. Does it honor **Zin · Betekenis · Vrijheid**?

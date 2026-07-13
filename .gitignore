@@ -35,3 +35,8 @@ npm-debug.log*
 
 # Claude Code scheduled-task lock files
 .claude/scheduled_tasks.lock
+.qa/
+web/.env
+web/public/media/
+.vercel
+.env*
