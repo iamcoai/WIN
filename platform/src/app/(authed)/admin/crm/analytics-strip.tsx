@@ -4,16 +4,31 @@ import { db } from "@/lib/db";
 import { booking, contact } from "@/lib/db/schema";
 
 const WEEKS = 8;
+const AMS = "Europe/Amsterdam";
 
-function weekStart(d: Date): Date {
-  const x = new Date(d);
-  x.setHours(0, 0, 0, 0);
-  const dow = (x.getDay() + 6) % 7; // 0 = maandag
-  x.setDate(x.getDate() - dow);
-  return x;
+const amsDayFmt = new Intl.DateTimeFormat("en-CA", {
+  timeZone: AMS,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+/** Monday of the week containing dateStr — pure calendar math. */
+function mondayOf(dateStr: string): string {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  dt.setUTCDate(dt.getUTCDate() - ((dt.getUTCDay() + 6) % 7));
+  return dt.toISOString().slice(0, 10);
+}
+
+function addDaysStr(dateStr: string, days: number): string {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d + days));
+  return dt.toISOString().slice(0, 10);
 }
 
 const weekLabelFmt = new Intl.DateTimeFormat("nl-NL", {
+  timeZone: "UTC",
   day: "numeric",
   month: "short",
 });
@@ -46,19 +61,26 @@ function DistList({ rows }: { rows: { label: string; count: number }[] }) {
 }
 
 export async function AnalyticsStrip() {
-  const since = weekStart(new Date());
-  since.setDate(since.getDate() - (WEEKS - 1) * 7);
+  // Weeks bucketed in Europe/Amsterdam — server TZ (UTC on Vercel) mag
+  // de grafiek niet verschuiven.
+  const firstMonday = addDaysStr(
+    mondayOf(amsDayFmt.format(new Date())),
+    -(WEEKS - 1) * 7,
+  );
+  const since = new Date(`${firstMonday}T00:00:00Z`);
+  since.setUTCDate(since.getUTCDate() - 1); // marge voor UTC↔AMS-verschil
 
+  const weekExpr = sql`date_trunc('week', ${booking.bookedAt} AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Amsterdam')`;
   const [signupRows, serviceRows, sourceRows, lifecycleRows] =
     await Promise.all([
       db
         .select({
-          week: sql<string>`to_char(date_trunc('week', ${booking.bookedAt}), 'YYYY-MM-DD')`,
+          week: sql<string>`to_char(${weekExpr}, 'YYYY-MM-DD')`,
           count: sql<number>`COUNT(*)::int`,
         })
         .from(booking)
         .where(gte(booking.bookedAt, since))
-        .groupBy(sql`date_trunc('week', ${booking.bookedAt})`),
+        .groupBy(weekExpr),
       db
         .select({ label: booking.service, count: sql<number>`COUNT(*)::int` })
         .from(booking)
@@ -83,10 +105,12 @@ export async function AnalyticsStrip() {
   const countByWeek = new Map(signupRows.map((r) => [r.week, r.count]));
   const weeks: { key: string; label: string; count: number }[] = [];
   for (let i = 0; i < WEEKS; i++) {
-    const d = new Date(since);
-    d.setDate(since.getDate() + i * 7);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-    weeks.push({ key, label: weekLabelFmt.format(d), count: countByWeek.get(key) ?? 0 });
+    const key = addDaysStr(firstMonday, i * 7);
+    weeks.push({
+      key,
+      label: weekLabelFmt.format(new Date(`${key}T00:00:00Z`)),
+      count: countByWeek.get(key) ?? 0,
+    });
   }
   const maxWeek = Math.max(1, ...weeks.map((w) => w.count));
   const totalSignups = weeks.reduce((sum, w) => sum + w.count, 0);

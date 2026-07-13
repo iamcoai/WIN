@@ -34,7 +34,11 @@ export async function POST(request: NextRequest) {
     });
     return corsJson(origin, result, result.ok ? 200 : 400);
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return corsJson(origin, { ok: false, error: msg }, 500);
+    console.error("[booking] create failed:", err);
+    return corsJson(
+      origin,
+      { ok: false, error: "Er ging iets mis. Probeer het opnieuw." },
+      500,
+    );
   }
 }

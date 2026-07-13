@@ -313,7 +313,7 @@ export function BookingWidget() {
             </p>
           )}
           <p className="mt-6 text-sm text-win-charcoal/60">
-            Je ontvangt de details per e-mail. Tot binnenkort.
+            Je afspraak staat vast — Reza neemt vooraf contact met je op. Tot binnenkort.
           </p>
         </div>
       </Kaart>

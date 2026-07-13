@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const { getPublicConfig } = await import("@/modules/booking/service");
     return corsJson(origin, await getPublicConfig());
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return corsJson(origin, { error: msg }, 500);
+    console.error("[booking] config failed:", err);
+    return corsJson(origin, { error: "internal_error" }, 500);
   }
 }

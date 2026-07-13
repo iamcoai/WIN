@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     const { getAvailableSlots } = await import("@/modules/booking/service");
     return corsJson(origin, { days: await getAvailableSlots(from, to) });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return corsJson(origin, { error: msg }, 500);
+    console.error("[booking] slots failed:", err);
+    return corsJson(origin, { error: "internal_error" }, 500);
   }
 }

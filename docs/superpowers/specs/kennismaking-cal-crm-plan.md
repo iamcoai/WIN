@@ -75,6 +75,7 @@ Platform (Vercel "win-platform", Neon "neondb")
 - **Google Calendar-sync** — met eigen engine loopt dit via de Google Calendar API (OAuth-credentials van Chris; `calendarAccount`/`externalEvent`-tabellen bestaan al als landingsplek).
 - Self-service verzetten/annuleren door bezoeker (manageToken-pagina op de site).
 - Custom domeinen (wininstituut.nl → win-web; subdomein voor platform) — cors-allowlist staat al klaar.
+- **Rate-limiting/anti-bot op POST /api/booking** (security-review 2026-07-13): honeypot dekt simpele bots, maar een gerichte aanvaller kan alle slots volboeken. Optie: Vercel Firewall/BotID of Turnstile. Infra-keuze voor Chris.
 
 ## 8. Bewust niet gebouwd
 

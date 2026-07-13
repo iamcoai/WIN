@@ -17,7 +17,9 @@ export function AppShell({
       <Topbar role={role} userName={userName} />
       <div className="flex flex-1">
         <DesktopRail role={role} />
-        <main className="flex-1 pb-20 md:pb-8">{children}</main>
+        {/* min-w-0: wide tables must scroll inside their own container,
+            not stretch this flex item past the viewport */}
+        <main className="min-w-0 flex-1 pb-20 md:pb-8">{children}</main>
       </div>
       <BottomNav role={role} />
     </div>

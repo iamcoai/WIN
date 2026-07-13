@@ -137,6 +137,17 @@ export async function updateBookingField(
   },
 ) {
   await requireAdminOrCoach();
+  const rows = await db
+    .select({ system: bookingField.system })
+    .from(bookingField)
+    .where(eq(bookingField.id, id))
+    .limit(1);
+  // System fields (voornaam/achternaam/email) must stay active and required —
+  // without them createBooking rejects every submission.
+  if (rows[0]?.system) {
+    patch.active = true;
+    patch.required = true;
+  }
   await db
     .update(bookingField)
     .set({

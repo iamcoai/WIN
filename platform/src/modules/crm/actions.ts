@@ -71,11 +71,37 @@ export async function createContact(input: {
   return id;
 }
 
+// Mutable-column allowlist — never id/ownerId/createdAt via a patch.
+const CONTACT_PATCH_KEYS = [
+  "firstName",
+  "lastName",
+  "email",
+  "phone",
+  "company",
+  "jobTitle",
+  "avatarUrl",
+  "source",
+  "lifecycle",
+  "userId",
+  "notes",
+  "customFields",
+  "lastContactedAt",
+] as const;
+
 export async function updateContact(id: string, patch: Partial<typeof contact.$inferInsert>) {
   await requireAdminOrCoach();
+  const safe: Record<string, unknown> = {};
+  for (const key of CONTACT_PATCH_KEYS) {
+    if (key in patch) safe[key] = patch[key];
+  }
+  // Merge custom fields at the database — concurrent edits of different
+  // keys must not overwrite each other with stale client state.
+  if (patch.customFields && typeof patch.customFields === "object") {
+    safe.customFields = sql`${contact.customFields} || ${JSON.stringify(patch.customFields)}::jsonb`;
+  }
   await db
     .update(contact)
-    .set({ ...patch, updatedAt: new Date() })
+    .set({ ...safe, updatedAt: new Date() })
     .where(eq(contact.id, id));
   revalidatePath("/admin/crm");
   revalidatePath(`/admin/crm/contacts/${id}`);

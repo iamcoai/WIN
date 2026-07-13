@@ -129,10 +129,9 @@ export async function getAvailableSlots(
     now.getTime() + settings.minNoticeHours * 3_600_000,
   );
   const firstDay = dateStrInTz(earliest, tz);
-  const lastDay = dateStrInTz(
-    new Date(now.getTime() + settings.maxDaysAhead * 86_400_000),
-    tz,
-  );
+  // Calendar days, not 24h blocks — keeps the horizon DST-exact and in
+  // sync with the widget's own max-date arithmetic.
+  const lastDay = addDays(dateStrInTz(now, tz), settings.maxDaysAhead);
   let cursor = fromStr < firstDay ? firstDay : fromStr;
   const end = toStr > lastDay ? lastDay : toStr;
   if (cursor > end) return {};
@@ -169,7 +168,8 @@ export async function getAvailableSlots(
 
   while (cursor <= end) {
     const dayRules = rulesByDay.get(isoWeekday(cursor)) ?? [];
-    const slots: string[] = [];
+    // Set: the DST spring-gap maps two wall times onto one instant.
+    const slots = new Set<string>();
     for (const rule of dayRules) {
       for (
         let min = rule.startMinute;
@@ -184,10 +184,10 @@ export async function getAvailableSlots(
             start.getTime() < b.endsAt.getTime() + bufferMs &&
             endMs + bufferMs > b.startsAt.getTime(),
         );
-        if (!overlaps) slots.push(start.toISOString());
+        if (!overlaps) slots.add(start.toISOString());
       }
     }
-    if (slots.length) result[cursor] = slots.sort();
+    if (slots.size) result[cursor] = [...slots].sort();
     cursor = addDays(cursor, 1);
   }
   return result;
@@ -202,10 +202,13 @@ async function upsertContact(input: {
   phone: string | null;
   company: string | null;
 }): Promise<string> {
+  // Oldest first — repeat bookings attach deterministically to the
+  // original contact if duplicates ever exist.
   const existing = await db
     .select({ id: contact.id })
     .from(contact)
     .where(sql`lower(${contact.email}) = ${input.email.toLowerCase()}`)
+    .orderBy(asc(contact.createdAt))
     .limit(1);
 
   if (existing.length) {
@@ -274,7 +277,15 @@ export async function createBooking(
   for (const f of fields) {
     const raw = input.responses?.[f.key];
     const val = typeof raw === "string" ? raw.trim() : raw;
-    if (f.required && (val === undefined || val === null || val === "")) {
+    // Widget stuurt checkboxes als string ("ja"); accepteer gangbare vormen.
+    const checked =
+      val === true || ["true", "ja", "on", "1"].includes(String(val ?? ""));
+    const missing =
+      val === undefined ||
+      val === null ||
+      val === "" ||
+      (f.fieldType === "checkbox" && !checked);
+    if (f.required && missing) {
       return { ok: false, code: "invalid", error: `"${f.label}" is verplicht.` };
     }
     if (val === undefined || val === null || val === "") continue;
@@ -285,7 +296,7 @@ export async function createBooking(
       }
     }
     if (f.fieldType === "checkbox") {
-      responses[f.key] = Boolean(val);
+      responses[f.key] = checked;
       continue;
     }
     if (typeof val !== "string" || val.length > 5000) {
@@ -346,8 +357,15 @@ export async function createBooking(
     });
   } catch (err) {
     // Unique index on starts_at — two visitors raced for the same slot.
-    const msg = err instanceof Error ? err.message : String(err);
-    if (msg.includes("booking_slot_unique")) {
+    // drizzle wraps the driver error; the constraint lives on the cause chain.
+    let cause: unknown = err;
+    while (cause instanceof Error && cause.cause) cause = cause.cause;
+    const pgErr = cause as { code?: string; constraint_name?: string; message?: string };
+    const isSlotRace =
+      pgErr?.code === "23505" &&
+      (pgErr.constraint_name === "booking_slot_unique" ||
+        String(pgErr.message ?? "").includes("booking_slot_unique"));
+    if (isSlotRace) {
       return {
         ok: false,
         code: "slot_taken",

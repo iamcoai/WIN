@@ -39,8 +39,23 @@ function monthName(d: Date) {
   }).format(d);
 }
 
+// Day keys and clock times in Europe/Amsterdam — the server runs in UTC
+// on Vercel, and 10:00-afspraken moeten niet als 08:00 in het grid staan.
+const AMS = "Europe/Amsterdam";
+const dayKeyFmt = new Intl.DateTimeFormat("en-CA", {
+  timeZone: AMS,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+const clockFmt = new Intl.DateTimeFormat("nl-NL", {
+  timeZone: AMS,
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
 function isoDateOnly(d: Date) {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  return dayKeyFmt.format(d);
 }
 
 export default async function AgendaPage({
@@ -188,17 +203,14 @@ export default async function AgendaPage({
     push(new Date(s.startAt), {
       kind: "session",
       id: s.id,
-      title: `${new Intl.DateTimeFormat("nl-NL", { hour: "2-digit", minute: "2-digit" }).format(new Date(s.startAt))} ${s.title}${s.clientName ? ` · ${s.clientName}` : ""}`,
-      time: new Intl.DateTimeFormat("nl-NL", { hour: "2-digit", minute: "2-digit" }).format(new Date(s.startAt)),
+      title: `${clockFmt.format(new Date(s.startAt))} ${s.title}${s.clientName ? ` · ${s.clientName}` : ""}`,
+      time: clockFmt.format(new Date(s.startAt)),
       href: `/coach/sessies/${s.id}/prep`,
       color: "bg-primary/12 text-primary",
     });
   }
   for (const b of bookings) {
-    const time = new Intl.DateTimeFormat("nl-NL", {
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(b.startsAt));
+    const time = clockFmt.format(new Date(b.startsAt));
     push(new Date(b.startsAt), {
       kind: "booking",
       id: b.id,

@@ -215,16 +215,24 @@ export function FieldRowActions({
                 defaultValue={field.placeholder ?? ""}
               />
             </div>
-            <div className="flex items-center gap-2">
-              <Checkbox id={`ef-required-${field.id}`} name="required" defaultChecked={field.required} />
-              <Label htmlFor={`ef-required-${field.id}`} className="cursor-pointer">Verplicht</Label>
-            </div>
-            <div className="flex items-center gap-2">
-              <Checkbox id={`ef-active-${field.id}`} name="active" defaultChecked={field.active} />
-              <Label htmlFor={`ef-active-${field.id}`} className="cursor-pointer">
-                Actief (zichtbaar op de site)
-              </Label>
-            </div>
+            {field.system ? (
+              <p className="text-xs text-muted-foreground">
+                Systeemveld — altijd actief en verplicht (nodig om te kunnen boeken).
+              </p>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  <Checkbox id={`ef-required-${field.id}`} name="required" defaultChecked={field.required} />
+                  <Label htmlFor={`ef-required-${field.id}`} className="cursor-pointer">Verplicht</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox id={`ef-active-${field.id}`} name="active" defaultChecked={field.active} />
+                  <Label htmlFor={`ef-active-${field.id}`} className="cursor-pointer">
+                    Actief (zichtbaar op de site)
+                  </Label>
+                </div>
+              </>
+            )}
             <DialogFooter>
               <Button type="button" variant="ghost" onClick={() => setEditOpen(false)}>
                 Annuleren

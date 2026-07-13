@@ -714,7 +714,11 @@ export function VerwachtingenLijst(props: VerwachtingenLijstBlok) {
             ))}
           </div>
         </div>
-        <AgendaKaart />
+        <AgendaKaart
+          kopTekst="Online plannen is live"
+          statusLabel="Direct te boeken"
+          tekst="Kies hierboven een moment dat jou past — je kennismaking staat direct in de agenda."
+        />
       </div>
     </section>
   )

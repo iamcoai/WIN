@@ -207,7 +207,15 @@ export function ContactsTable({
       const col = colByKey.get(f.field);
       if (!col || !f.value) continue;
       const needle = f.value.toLowerCase();
-      out = out.filter((r) => cellValue(r, col).toLowerCase().includes(needle));
+      out = out.filter((r) => {
+        const raw = cellValue(r, col);
+        if (raw.toLowerCase().includes(needle)) return true;
+        // Date columns display "13 jul 2026" — match what the user sees.
+        if (col.kind === "date" && raw) {
+          return dateFmt.format(new Date(raw)).toLowerCase().includes(needle);
+        }
+        return false;
+      });
     }
     if (sort.length) {
       const s = sort[0];
@@ -285,8 +293,10 @@ export function ContactsTable({
     if (value === current) return;
     startTransition(async () => {
       if (col.cfKey) {
+        // Only the edited key — the server merges into the jsonb, so a
+        // stale row prop can't clobber other custom fields.
         await updateContact(row.id, {
-          customFields: { ...row.customFields, [col.cfKey]: value },
+          customFields: { [col.cfKey]: value },
         } as never);
       } else if (col.key === "status") {
         await updateContact(row.id, { lifecycle: value } as never);
