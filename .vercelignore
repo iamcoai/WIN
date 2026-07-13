@@ -1,0 +1,11 @@
+# Platform-deploy vanaf repo-root: alleen wat de workspace-build nodig heeft.
+# web/package.json blijft (npm workspaces), maar de web-app zelf niet.
+content
+docs
+*.png
+*.jpeg
+web/public
+web/src
+web/payload-types.ts
+scripts
+.playwright-mcp

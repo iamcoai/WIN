@@ -1,6 +1,7 @@
-import { sql } from "drizzle-orm";
+import { and, eq, gte, lte, ne, asc, sql } from "drizzle-orm";
 import { PageBody, PageHeader } from "@/components/ui/page-header";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Users,
   Briefcase,
@@ -11,14 +12,14 @@ import {
   Link as LinkIcon,
   Settings,
   Calendar,
+  CalendarClock,
   Tags,
   SlidersHorizontal,
   ArrowUpRight,
 } from "lucide-react";
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { contact, deal, workshop, user } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { booking, contact, deal, workshop, user } from "@/lib/db/schema";
 
 type Section = {
   title: string;
@@ -54,7 +55,54 @@ export default async function AdminHome() {
     .select({ totalUsers: sql<number>`COUNT(*)::int` })
     .from(user);
 
+  // Kennismakingen: vandaag (Europe/Amsterdam) + nieuwe aanmeldingen 7 dagen
+  const tz = "Europe/Amsterdam";
+  const now = new Date();
+  const todayStr = new Intl.DateTimeFormat("en-CA", {
+    timeZone: tz,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(now);
+  const nearbyBookings = await db
+    .select({
+      id: booking.id,
+      startsAt: booking.startsAt,
+      attendeeName: booking.attendeeName,
+      service: booking.service,
+      location: booking.location,
+      contactId: booking.contactId,
+    })
+    .from(booking)
+    .where(
+      and(
+        ne(booking.status, "cancelled"),
+        gte(booking.startsAt, new Date(now.getTime() - 86_400_000)),
+        lte(booking.startsAt, new Date(now.getTime() + 2 * 86_400_000)),
+      ),
+    )
+    .orderBy(asc(booking.startsAt));
+  const dayFmt = new Intl.DateTimeFormat("en-CA", {
+    timeZone: tz,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const todayBookings = nearbyBookings.filter(
+    (b) => dayFmt.format(b.startsAt) === todayStr,
+  );
+  const timeFmt = new Intl.DateTimeFormat("nl-NL", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: tz,
+  });
+  const [{ newSignups }] = await db
+    .select({ newSignups: sql<number>`COUNT(*)::int` })
+    .from(booking)
+    .where(gte(booking.bookedAt, new Date(now.getTime() - 7 * 86_400_000)));
+
   const stats = [
+    { label: "Aanmeldingen (7 dgn)", value: newSignups.toLocaleString("nl-NL") },
     { label: "Contacten", value: totalContacts.toLocaleString("nl-NL") },
     { label: "Open deals", value: openDeals.toLocaleString("nl-NL") },
     {
@@ -74,6 +122,13 @@ export default async function AdminHome() {
           icon: Users,
           title: "Contacten",
           desc: "Leads, prospects, klanten — zoek en filter.",
+          accent: true,
+        },
+        {
+          href: "/admin/boekingen",
+          icon: CalendarClock,
+          title: "Boekingen",
+          desc: "Kennismakingen, beschikbaarheid en formulier.",
           accent: true,
         },
         {
@@ -169,8 +224,57 @@ export default async function AdminHome() {
         description="Overzicht van cliënten, pipeline, events en platform-gezondheid."
       />
       <PageBody>
+        {/* Vandaag — kennismakingen */}
+        <Card className="mb-6">
+          <CardHeader className="flex flex-row items-center justify-between p-4 pb-1">
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <CalendarClock className="h-4 w-4 text-primary" strokeWidth={1.8} />
+              Vandaag
+            </CardTitle>
+            <Link
+              href={{ pathname: "/admin/boekingen" }}
+              className="text-xs text-muted-foreground hover:text-foreground"
+            >
+              Alle boekingen →
+            </Link>
+          </CardHeader>
+          <CardContent className="p-4 pt-2">
+            {todayBookings.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Geen kennismakingen vandaag.
+              </p>
+            ) : (
+              <div className="space-y-1.5">
+                {todayBookings.map((b) => (
+                  <Link
+                    key={b.id}
+                    href={{
+                      pathname: b.contactId
+                        ? `/admin/crm/contacts/${b.contactId}`
+                        : "/admin/boekingen",
+                    }}
+                    className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 transition-colors hover:bg-muted"
+                  >
+                    <span className="font-medium tabular-nums">
+                      {timeFmt.format(b.startsAt)}
+                    </span>
+                    <span className="text-sm">
+                      Kennismaking met{" "}
+                      <span className="font-medium">{b.attendeeName ?? "Onbekend"}</span>
+                    </span>
+                    {b.service ? <Badge variant="success">{b.service}</Badge> : null}
+                    {b.location ? (
+                      <span className="text-xs text-muted-foreground">{b.location}</span>
+                    ) : null}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Stat strip */}
-        <div className="mb-8 grid gap-3 sm:grid-cols-2 md:grid-cols-5">
+        <div className="mb-8 grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
           {stats.map((s) => (
             <div
               key={s.label}

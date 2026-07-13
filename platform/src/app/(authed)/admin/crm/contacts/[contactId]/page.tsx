@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { db } from "@/lib/db";
 import {
   activity,
+  booking,
   contact,
   contactTag,
   customField,
@@ -94,6 +95,19 @@ export default async function ContactDetail({
     .from(workshopAttendee)
     .innerJoin(workshop, eq(workshop.id, workshopAttendee.workshopId))
     .where(eq(workshopAttendee.contactId, contactId));
+
+  const contactBookings = await db
+    .select({
+      id: booking.id,
+      service: booking.service,
+      startsAt: booking.startsAt,
+      status: booking.status,
+      bookedAt: booking.bookedAt,
+      responses: booking.responses,
+    })
+    .from(booking)
+    .where(eq(booking.contactId, contactId))
+    .orderBy(desc(booking.startsAt));
 
   const contactCustomFields = await db
     .select()
@@ -232,6 +246,65 @@ export default async function ContactDetail({
                       </Badge>
                     </div>
                   ))}
+                </CardContent>
+              </Card>
+            ) : null}
+
+            {contactBookings.length ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Kennismakingen</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-1.5">
+                  {contactBookings.map((b) => {
+                    const onderwerp =
+                      b.responses && typeof b.responses === "object"
+                        ? (b.responses as Record<string, unknown>).onderwerp
+                        : null;
+                    return (
+                      <div
+                        key={b.id}
+                        className="rounded-md border border-border p-2.5 text-sm"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="font-medium tabular-nums">
+                            {new Intl.DateTimeFormat("nl-NL", {
+                              dateStyle: "medium",
+                              timeStyle: "short",
+                              timeZone: "Europe/Amsterdam",
+                            }).format(new Date(b.startsAt))}
+                          </p>
+                          <div className="flex items-center gap-1.5">
+                            {b.service ? (
+                              <Badge variant="success">{b.service}</Badge>
+                            ) : null}
+                            <Badge
+                              variant={b.status === "cancelled" ? "destructive" : "outline"}
+                            >
+                              {b.status === "confirmed"
+                                ? "bevestigd"
+                                : b.status === "rescheduled"
+                                  ? "verzet"
+                                  : "geannuleerd"}
+                            </Badge>
+                          </div>
+                        </div>
+                        {typeof onderwerp === "string" && onderwerp ? (
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            “{onderwerp}”
+                          </p>
+                        ) : null}
+                        <p className="mt-1 text-[0.6875rem] text-muted-foreground/70">
+                          Aangemeld op{" "}
+                          {new Intl.DateTimeFormat("nl-NL", {
+                            dateStyle: "medium",
+                            timeStyle: "short",
+                            timeZone: "Europe/Amsterdam",
+                          }).format(new Date(b.bookedAt))}
+                        </p>
+                      </div>
+                    );
+                  })}
                 </CardContent>
               </Card>
             ) : null}

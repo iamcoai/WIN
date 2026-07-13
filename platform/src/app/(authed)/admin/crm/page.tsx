@@ -1,25 +1,18 @@
 import Link from "next/link";
 import { and, asc, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { PageBody, PageHeader } from "@/components/ui/page-header";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from "@/components/ui/table";
-import { Plus, X, Search } from "lucide-react";
+import { X, Search } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Users } from "lucide-react";
 import { db } from "@/lib/db";
-import { contact, contactTag, tag, deal, customField } from "@/lib/db/schema";
+import { contact, contactTag, tag, deal, customField, crmView } from "@/lib/db/schema";
+import { getCurrentUser } from "@/lib/auth-helpers";
 import { cn } from "@/lib/utils";
 import { NewContactDialog } from "./new-contact-dialog";
+import { AnalyticsStrip } from "./analytics-strip";
+import { ContactsTable, type SavedView } from "./contacts-table";
 
 type Params = Record<string, string | string[] | undefined>;
 
@@ -119,6 +112,46 @@ export default async function CRMContactsPage({
 
   const tagById = new Map(allTags.map((t) => [t.id, t]));
 
+  // Saved views for this user
+  const me = await getCurrentUser();
+  const savedViews: SavedView[] = me
+    ? (
+        await db
+          .select()
+          .from(crmView)
+          .where(and(eq(crmView.userId, me.user.id), eq(crmView.entity, "contact")))
+          .orderBy(asc(crmView.position), asc(crmView.createdAt))
+      ).map((v) => ({
+        id: v.id,
+        name: v.name,
+        isDefault: v.isDefault,
+        columns: (v.columns as string[]) ?? [],
+        filters: (v.filters as { field: string; value: string }[]) ?? [],
+        sort: (v.sort as { field: string; dir: "asc" | "desc" }[]) ?? [],
+        density: v.density,
+      }))
+    : [];
+
+  const tableRows = contacts.map((c) => ({
+    id: c.id,
+    firstName: c.firstName,
+    lastName: c.lastName,
+    jobTitle: c.jobTitle,
+    company: c.company,
+    email: c.email,
+    phone: c.phone,
+    source: c.source,
+    lifecycle: c.lifecycle,
+    tags: (tagsByContact.get(c.id) ?? [])
+      .map((tid) => tagById.get(tid)?.name)
+      .filter(Boolean) as string[],
+    deals: dealCountMap.get(c.id) ?? 0,
+    lastContactedAt: c.lastContactedAt ? c.lastContactedAt.toISOString() : null,
+    updatedAt: c.updatedAt.toISOString(),
+    createdAt: c.createdAt.toISOString(),
+    customFields: (c.customFields as Record<string, unknown>) ?? {},
+  }));
+
   // Build filter-query helpers
   const buildHref = (patch: Record<string, string | undefined>) => {
     const qs = new URLSearchParams();
@@ -156,6 +189,9 @@ export default async function CRMContactsPage({
         actions={<NewContactDialog tags={allTags} customFields={contactCustomFields} />}
       />
       <PageBody className="max-w-full">
+        {/* Analytics */}
+        <AnalyticsStrip />
+
         {/* Search + filters toolbar */}
         <div className="mb-5 rounded-xl border border-border bg-card p-3 shadow-xs">
           <form className="flex flex-wrap items-center gap-2" action="/admin/crm">
@@ -249,7 +285,7 @@ export default async function CRMContactsPage({
           </div>
         ) : null}
 
-        {/* Table */}
+        {/* Table — kolommen, filters, sortering en weergaven zelf in te richten */}
         {contacts.length === 0 ? (
           <EmptyState
             icon={Users}
@@ -257,107 +293,16 @@ export default async function CRMContactsPage({
             description={activeFilters ? "Geen resultaten voor deze filters." : "Voeg je eerste contact toe."}
           />
         ) : (
-          <Card>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Naam</TableHead>
-                      <TableHead>Bedrijf</TableHead>
-                      <TableHead>E-mail</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Tags</TableHead>
-                      <TableHead className="text-right">Deals</TableHead>
-                      <TableHead>Laatst bijgewerkt</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {contacts.map((c) => {
-                      const fullName =
-                        [c.firstName, c.lastName].filter(Boolean).join(" ") || "—";
-                      const initials =
-                        fullName
-                          .split(" ")
-                          .filter(Boolean)
-                          .map((p) => p[0])
-                          .join("")
-                          .slice(0, 2)
-                          .toUpperCase() || "··";
-                      return (
-                      <TableRow key={c.id} className="cursor-pointer">
-                        <TableCell>
-                          <Link
-                            href={{ pathname: `/admin/crm/contacts/${c.id}` }}
-                            className="flex items-center gap-2.5 font-medium hover:text-primary"
-                          >
-                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/12 text-[10px] font-semibold text-primary">
-                              {initials}
-                            </span>
-                            <span className="flex flex-col">
-                              <span>{fullName}</span>
-                              {c.jobTitle ? (
-                                <span className="text-[0.75rem] font-normal text-muted-foreground">
-                                  {c.jobTitle}
-                                </span>
-                              ) : null}
-                            </span>
-                          </Link>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {c.company ?? "—"}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {c.email ?? "—"}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              c.lifecycle === "customer"
-                                ? "default"
-                                : c.lifecycle === "prospect"
-                                  ? "secondary"
-                                  : "outline"
-                            }
-                          >
-                            {c.lifecycle}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-1">
-                            {(tagsByContact.get(c.id) ?? []).map((tid) => {
-                              const t = tagById.get(tid);
-                              if (!t) return null;
-                              return (
-                                <Badge
-                                  key={tid}
-                                  variant="outline"
-                                  className="text-xs"
-                                >
-                                  {t.name}
-                                </Badge>
-                              );
-                            })}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right font-semibold tabular-nums">
-                          {dealCountMap.get(c.id) ?? 0}
-                        </TableCell>
-                        <TableCell className="text-xs text-muted-foreground">
-                          {new Intl.DateTimeFormat("nl-NL", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          }).format(new Date(c.updatedAt))}
-                        </TableCell>
-                      </TableRow>
-                    );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
+          <ContactsTable
+            rows={tableRows}
+            customFields={contactCustomFields.map((f) => ({
+              key: f.key,
+              label: f.label,
+              fieldType: f.fieldType,
+              options: (f.options as string[]) ?? [],
+            }))}
+            views={savedViews}
+          />
         )}
       </PageBody>
     </>

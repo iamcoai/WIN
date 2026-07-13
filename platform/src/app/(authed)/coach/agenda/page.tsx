@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { db } from "@/lib/db";
 import {
   afspraak,
+  booking,
   workshop,
   task,
   externalEvent,
@@ -121,6 +122,26 @@ export default async function AgendaPage({
       ),
     );
 
+  // Kennismakingen booked via the website
+  const bookings = await db
+    .select({
+      id: booking.id,
+      startsAt: booking.startsAt,
+      attendeeName: booking.attendeeName,
+      service: booking.service,
+      contactId: booking.contactId,
+      status: booking.status,
+    })
+    .from(booking)
+    .where(
+      and(
+        sql`${booking.status} <> 'cancelled'`,
+        gte(booking.startsAt, rangeStart),
+        lte(booking.startsAt, rangeEnd),
+      ),
+    )
+    .orderBy(asc(booking.startsAt));
+
   // External events: any account of mine, events in range
   const externals = await db
     .select({
@@ -149,7 +170,7 @@ export default async function AgendaPage({
 
   // Build day buckets
   type DayEvent = {
-    kind: "session" | "workshop" | "task" | "external";
+    kind: "session" | "booking" | "workshop" | "task" | "external";
     id: string;
     title: string;
     time?: string;
@@ -171,6 +192,20 @@ export default async function AgendaPage({
       time: new Intl.DateTimeFormat("nl-NL", { hour: "2-digit", minute: "2-digit" }).format(new Date(s.startAt)),
       href: `/coach/sessies/${s.id}/prep`,
       color: "bg-primary/12 text-primary",
+    });
+  }
+  for (const b of bookings) {
+    const time = new Intl.DateTimeFormat("nl-NL", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(new Date(b.startsAt));
+    push(new Date(b.startsAt), {
+      kind: "booking",
+      id: b.id,
+      title: `${time} Kennismaking · ${b.attendeeName ?? "Onbekend"}${b.service ? ` (${b.service})` : ""}`,
+      time,
+      href: b.contactId ? `/admin/crm/contacts/${b.contactId}` : "/admin/boekingen",
+      color: "bg-success/12 text-success",
     });
   }
   for (const w of workshops) {
@@ -279,6 +314,7 @@ export default async function AgendaPage({
           </h2>
           <div className="flex items-center gap-3 text-[0.6875rem]">
             <Badge variant="gold" className="text-[10px]">Sessies</Badge>
+            <Badge variant="success" className="text-[10px]">Kennismakingen</Badge>
             <Badge variant="olive" className="text-[10px]">Workshops</Badge>
             <Badge variant="info" className="text-[10px]">Taken</Badge>
             {accounts.length ? (
